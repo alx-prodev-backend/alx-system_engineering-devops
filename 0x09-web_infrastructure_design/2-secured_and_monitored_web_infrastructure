@@ -1,0 +1,55 @@
+Secured and Monitored Web Infrastructure - Three Server Setup
+
+Diagram:
+--------------------------------------------------------------------------------
+                 User Browser
+                       |
+                 foobar.com (DNS)
+                       |
+                 Firewall #1 (Public Traffic)
+                       |
+              Load Balancer (HAProxy + SSL Termination)
+                       |
+              Firewall #2 (Between LB and Web Servers)
+               /                       \
+   Server 1 (Web + App)           Server 2 (Web + App)
+       Nginx                          Nginx
+       App Server                     App Server
+       App Files                      App Files
+               \                       /
+                Firewall #3 (DB Layer Protection)
+                       |
+               MySQL Database Cluster
+     Primary DB (Server 3) --- Replica DB (Server 2 or another DB node)
+--------------------------------------------------------------------------------
+Monitoring Clients:
+- Each server runs a monitoring agent (e.g., SumoLogic, DataDog, or Nagios) to collect metrics and logs.
+
+Security:
+- SSL certificate installed on the load balancer to serve HTTPS.
+- Firewalls block unauthorized access at each layer.
+
+1. Additional Elements & Purpose:
+   - 3 Firewalls:
+       * Firewall #1: Protects public entry point, blocks unauthorized IPs/ports.
+       * Firewall #2: Protects the internal network between LB and web/application servers.
+       * Firewall #3: Restricts access to the database servers to only the application servers.
+   - SSL Certificate: Encrypts traffic to protect data in transit (e.g., passwords, personal info).
+   - 3 Monitoring Clients: Installed on each server to send metrics, logs, and alerts to a centralized monitoring platform.
+
+2. Purpose of Each:
+   - Firewalls: Control inbound/outbound traffic based on security rules to prevent unauthorized access.
+   - HTTPS: Ensures confidentiality and integrity of data between users and the web infrastructure.
+   - Monitoring: Tracks performance, detects failures, and triggers alerts when anomalies occur.
+   - Data Collection: Monitoring agents gather CPU, memory, disk usage, network stats, and application logs, sending them to the monitoring service.
+
+3. Example: Monitoring Web Server QPS (Queries Per Second):
+   - Configure monitoring tool to collect Nginx access logs.
+   - Parse logs to count HTTP requests per second.
+   - Create a dashboard & alert rule if QPS exceeds thresholds.
+
+4. Issues with this Infrastructure:
+   - SSL Termination at Load Balancer: Traffic between LB and web servers is unencrypted unless re-encrypted internally, which can be a security gap.
+   - Single MySQL Write Node: If the primary DB fails, write operations stop until failover is performed.
+   - Identical Components on All Servers: Increases complexity; a compromise on one layer could expose all services.
+
