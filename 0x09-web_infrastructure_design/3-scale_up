@@ -1,0 +1,54 @@
+Scale Up - Adding Dedicated Servers and Load Balancer Clustering
+
+Diagram:
+--------------------------------------------------------------------------------
+                 User Browser
+                       |
+                 foobar.com (DNS)
+                       |
+               Load Balancer #1 (HAProxy)
+                       |
+               Load Balancer #2 (HAProxy)
+             [Configured in Active-Active or Active-Passive cluster]
+                       |
+           ---------------------------------
+           |                               |
+   Web Server 1 (Nginx)             Web Server 2 (Nginx)
+           |                               |
+   Application Server 1             Application Server 2
+   (Code base)                      (Code base)
+           \                               /
+            ----------- Database Layer -----------
+                       |
+              Primary MySQL Database Server
+                       |
+                Replica MySQL Database Server
+--------------------------------------------------------------------------------
+
+1. Additional Elements & Purpose:
+   - Additional Load Balancer:
+       * Reason: To remove the load balancer as a single point of failure (SPOF).
+       * Configured as a cluster to ensure high availability (Active-Active for both in use, or Active-Passive where one is on standby).
+   - Dedicated Web Servers:
+       * Reason: Separating the web server from other services improves scalability and allows independent scaling of the web tier.
+   - Dedicated Application Servers:
+       * Reason: Offloading application logic from the web server ensures better performance and isolation of concerns.
+   - Dedicated Database Server:
+       * Reason: Improves performance by isolating storage and query handling from other processes.
+
+2. Key Concepts:
+   - Active-Active Load Balancer Cluster: Both LBs handle traffic simultaneously, sharing the load.
+   - Active-Passive Load Balancer Cluster: One LB handles all traffic, while the other is on standby, ready to take over if the active one fails.
+   - Web Server: Handles static content (HTML, CSS, JS, images) and forwards dynamic requests to the application server.
+   - Application Server: Processes business logic, connects to the database, and returns dynamic content.
+   - Database Server: Stores and manages persistent data.
+
+3. Benefits of This Design:
+   - Improved fault tolerance with redundant load balancers.
+   - Better scalability by separating tiers.
+   - Easier maintenance as components can be updated independently.
+
+4. Potential Issues:
+   - Increased complexity in deployment and configuration.
+   - More servers mean higher operational costs.
+   - Requires robust monitoring and failover testing to ensure redundancy works correctly.
