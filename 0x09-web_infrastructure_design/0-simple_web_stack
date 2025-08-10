@@ -1,0 +1,46 @@
+Simple Web Stack - One Server Infrastructure
+
+Diagram:
+-------------------------------------------------
+User Browser
+    |
+    v
+foobar.com (DNS) --> resolves to IP 8.8.8.8
+    |
+    v
+Server (8.8.8.8)
+-------------------------------------------------
+| Nginx (Web Server)                           |
+| Application Server (e.g., PHP)               |
+| Application Files (Code Base)                |
+| MySQL (Database)                             |
+-------------------------------------------------
+
+Explanation:
+
+1. User request flow:
+   - User enters www.foobar.com in the browser.
+   - Browser queries DNS to resolve the domain name.
+   - DNS responds with the IP address 8.8.8.8.
+   - Browser sends HTTP/HTTPS request to 8.8.8.8.
+   - Nginx (web server) receives the request.
+   - Static files are served directly by Nginx.
+   - Dynamic requests are passed to the application server (e.g., PHP).
+   - Application server processes code and communicates with MySQL database if needed.
+   - Response is sent back through Nginx to the user's browser.
+
+2. Components:
+   - Server: A physical or virtual machine hosting the web server, application server, database, and code base.
+   - Domain name: Human-readable name mapping to an IP address.
+   - DNS record type: 'www' is an A record pointing to 8.8.8.8.
+   - Web server (Nginx): Handles HTTP requests, serves static files, forwards dynamic requests.
+   - Application server: Runs backend code and processes dynamic requests.
+   - Application files: Code base of the website (HTML, CSS, JS, PHP, etc.).
+   - Database (MySQL): Stores and retrieves application data.
+   - Communication protocol: HTTP or HTTPS over TCP.
+
+3. Issues with this infrastructure:
+   - SPOF (Single Point of Failure): If the server goes down, the whole site is unavailable.
+   - Downtime during maintenance: Restarting services or deploying updates causes temporary unavailability.
+   - Scalability limitations: Cannot handle high traffic loads efficiently; adding more resources is limited.
+
