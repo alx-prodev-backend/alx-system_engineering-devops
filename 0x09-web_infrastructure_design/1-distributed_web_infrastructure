@@ -1,0 +1,49 @@
+Distributed Web Infrastructure - Three Server Setup
+
+Diagram:
+---------------------------------------------------------
+                 User Browser
+                       |
+                 foobar.com (DNS)
+                       |
+               Load Balancer (HAProxy)
+          (Round Robin Distribution Algorithm)
+               /                       \
+   Server 1 (8.8.8.8)              Server 2 (8.8.8.9)
+---------------------------------------------------------
+| Nginx (Web Server)          | Nginx (Web Server)      |
+| Application Server          | Application Server      |
+| Application Files           | Application Files       |
+---------------------------------------------------------
+                |
+          MySQL Database Cluster
+     Primary DB (Server 1) --- Replica DB (Server 3)
+---------------------------------------------------------
+
+1. Additional Elements & Purpose:
+   - Load Balancer (HAProxy): Distributes incoming traffic across multiple web/application servers to improve availability and performance.
+   - Second Web/Application Server: Provides redundancy and allows load sharing between servers, reducing the risk of downtime if one server fails.
+   - Database Primary-Replica Cluster: Ensures data availability and read scalability. If the primary fails, the replica can take over.
+
+2. Load Balancer Details:
+   - Distribution Algorithm: Round Robin – sequentially forwards each new request to the next server in the list, then loops back to the first.
+   - Setup Type: Active-Active – both servers actively handle traffic at the same time.
+     * Active-Active: Multiple servers handle requests simultaneously.
+     * Active-Passive: One server handles requests while the other stays idle until failover.
+
+3. Database Primary-Replica Cluster:
+   - Primary Node: Handles all write and update operations. Replicates changes to the replica node.
+   - Replica Node: Receives updates from the primary. Used for read queries to balance database load and ensure redundancy.
+
+4. Communication Flow:
+   - User enters www.foobar.com → DNS resolves to the load balancer's IP.
+   - Load balancer routes request to one of the active web/application servers.
+   - Web server (Nginx) serves static content and forwards dynamic requests to the application server.
+   - Application server processes logic and interacts with the primary database for writes or the replica for reads.
+   - Response flows back through the load balancer to the user.
+
+5. Issues with this Infrastructure:
+   - SPOF: The load balancer itself is a single point of failure unless made redundant.
+   - Security: No firewall to filter malicious traffic; no HTTPS for secure communication.
+   - No Monitoring: Failures or performance issues may go unnoticed until they impact users.
+
